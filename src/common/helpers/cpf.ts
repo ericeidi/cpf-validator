@@ -1,4 +1,15 @@
 export default class Cpf {
+    
+    totalFirstDigitMultiplied: number;
+    cpfLength: number;
+    totalSecondDigitMultiplied: number;
+    
+    constructor(){
+        this.totalFirstDigitMultiplied = 0;
+        this.totalSecondDigitMultiplied = 0;
+        this.cpfLength = 11;
+    }
+
     validateCpf = (cpfParams: string): boolean => {
         if (cpfParams.length < 11 || cpfParams.length > 14 || cpfParams == null || cpfParams == undefined) return false;
         const cpfSanitized = this.cpfSanitizer(cpfParams);
@@ -18,27 +29,26 @@ export default class Cpf {
     }
 
     validateFirstVerifierDigit = (cpfArray: Array<string>): number => {
-        let totalMultiplier = 0;
-        let counterMultiplier = 10;
+        let cpfLengthMultiplier = 11;
         for(let index = 0; index <= 8; index++){
-            totalMultiplier = totalMultiplier + (parseInt(cpfArray[index]) * counterMultiplier);
-            counterMultiplier--;
+            this.totalFirstDigitMultiplied += (parseInt(cpfArray[index]) * (cpfLengthMultiplier - 1));
+            cpfLengthMultiplier--;
         }
-        const rest = (totalMultiplier % 11)
-        const firstDigit = 11 - rest;
+        const rest = (this.totalFirstDigitMultiplied % this.cpfLength)
+        const firstDigit = this.cpfLength - rest;
         return firstDigit
     }
 
     validateSecondVerifierDigit = (cpfArray: Array<string>, firstDigit: number): number => {
-        let totalMultiplier = 0;
-        let counterMultiplier = 11;
+        const firstDigitMultiplier = 2;
+        let cpfLengthMultiplier = 11;
         for(let index = 0; index <= 8; index++){
-            totalMultiplier = totalMultiplier + (parseInt(cpfArray[index]) * counterMultiplier);
-            counterMultiplier--;
+            this.totalSecondDigitMultiplied += (parseInt(cpfArray[index]) * cpfLengthMultiplier);
+            cpfLengthMultiplier--;
         }
-        const totalWithFirstDigit = totalMultiplier + (firstDigit * 2);      
-        const rest = (totalWithFirstDigit % 11)
-        const secondDigit = 11 - rest;
+        const totalWithFirstDigit = this.totalSecondDigitMultiplied + (firstDigit * firstDigitMultiplier);      
+        const rest = (totalWithFirstDigit % this.cpfLength)
+        const secondDigit = this.cpfLength - rest;
         return secondDigit
     }
 
